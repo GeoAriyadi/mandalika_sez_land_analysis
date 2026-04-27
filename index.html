@@ -23,7 +23,14 @@
   z-index: 9999;
   animation: fadeIn 1.2s ease;
 }
-
+.map-widgets {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  animation: fadeIn 1.3s ease;
+}
 
 .north-arrow-wrap {
   width: 62px;
@@ -179,8 +186,8 @@
   top: 24px;
   right: 24px;
   width: 240px;
-  max-height: 80vh;
-  transition: all 0.25s ease; 
+  height: auto;   /* Ubah dari 320px ke auto */
+  min-height: 550px; /* Tambahkan min-height agar proporsional */
   border-radius: 12px;
   overflow: hidden;
 
@@ -220,7 +227,7 @@
 #inset-info {
   position: relative;
   flex: 1;
-  overflow-y: auto;
+  overflow: visible;
   padding: 10px 12px;
 
   color: white;
@@ -285,61 +292,83 @@
   pointer-events: none;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
 }
-#navigation {
-  position: absolute !important;
-  bottom: 10px !important;
-  right: 10px !important;
-  z-index: 9999 !important;
-  transform: scale(0.7);
-}
 /* ===== REVISI RESPONSIVE ===== */
 @media screen and (max-width: 820px) {
-  #map-title-box, #legend-box, #inset-map {
-    z-index: 10000 !important;
+  /* 1. Sembunyikan Arah Utara dan Scale Bar di HP */
+  .map-widgets {
+    display: none !important;
   }
 
+  /* 2. Sesuaikan Judul agar lebih ringkas */
+  #map-title-box {
+    top: 10px;
+    left: 10px;
+    max-width: 50%; 
+  }
   #map-title {
-    font-size: 14px !important;
-    max-width: 200px;
+    font-size: 12px !important;
+    line-height: 1.2;
+  }
+  #map-desc-box {
+    display: none; /* Sembunyikan deskripsi di HP agar bersih */
+  }
+
+  /* 3. Inset Map: Klik untuk Detail */
+  #inset-map {
+    top: 10px;
+    right: 10px;
+    width: 120px; 
+    min-height: auto !important;
+    cursor: pointer; /* Memberi indikasi bisa diklik */
+    transition: width 0.3s ease;
+  }
+
+  /* Saat Inset Map diklik (class 'expanded' aktif), lebarnya membesar */
+  #inset-map.expanded {
+    width: 220px;
+  }
+
+  #inset-map-inner {
+    height: 80px;
+  }
+
+  /* Sembunyikan detail info secara default di HP */
+  #inset-info, #inset-source {
+    display: none; 
+    padding: 8px;
+  }
+
+  /* Tampilkan detail hanya ketika class 'expanded' ada */
+  #inset-map.expanded #inset-info, 
+  #inset-map.expanded #inset-source {
+    display: flex;
+  }
+
+  .inset-title {
+    font-size: 9px;
+  }
+
+  /* Tambahkan teks petunjuk kecil */
+  #inset-map::after {
+    content: "Tap for info";
+    display: block;
+    text-align: center;
+    font-size: 7px;
+    color: #FFD700;
+    padding: 2px;
+    background: rgba(0,0,0,0.5);
   }
   
-  #map-desc-box, .map-widgets { display: none !important; }
-
-  #inset-map {
-    width: 120px !important;
-    height: 120px !important;
-    top: 10px !important;
-    right: 10px !important;
-    transition: all 0.3s ease;
+  /* Hilangkan teks petunjuk jika sudah dibuka */
+  #inset-map.expanded::after {
+    display: none;
   }
 
-  /* KUNCI: Agar bisa membesar saat diklik */
-  #inset-map.expanded {
-    width: 85vw !important;
-    height: 400px !important; /* Ukuran saat membesar */
-    z-index: 10001 !important;
-    opacity: 1 !important;
+  #branding-text {
+    bottom: 5px;
+    right: 10px;
+    font-size: 7px;
   }
-
-  #inset-map-inner { height: 100% !important; }
-
-  /* Info tambahan muncul hanya saat di-expand */
-  #inset-info, #inset-source { display: none; }
-  #inset-map.expanded #inset-info, 
-  #inset-map.expanded #inset-source { display: flex !important; }
-
-  #legend-box {
-    bottom: 20px !important;
-    left: 10px !important;
-    width: 150px !important;
-  }
-  #legend-content {
-    max-height: 200px; 
-    overflow-y: auto; 
-    padding: 8px !important;
-  }
-  .legend-item { font-size: 9px !important; margin-bottom: 4px; }
-  .legend-color { width: 10px !important; height: 10px !important; }
 }
 /* ===== SELESAI TAMBAHAN SCRIPT RESPONSIVE ===== */
 
@@ -428,33 +457,47 @@
 <div id="inset-map">
   <div id="inset-map-inner"></div>
   <div id="inset-info">
-    <div class="inset-title">Mandalika Study Area</div>
-    <div class="inset-line"></div>
-    <div class="inset-text">
-      <b>Dominant Class:</b> Suitable Area
-    </div>
-    <div class="inset-line"></div>
-    <div class="inset-text">
-      <b>Interpretation:</b><br>
-      The area is predominantly classified as <i>“Suitable”</i> due to a combination of gentle slope conditions, 
-      good accessibility through existing road networks, and proximity to key tourism points of interest (POIs). 
-      These factors collectively indicate a high potential for sustainable tourism development within the Mandalika region.
-    </div>
-<div class="inset-line"></div>
-    <div class="inset-text small">
-      <b>Center:</b> -8.65, 116.33<br>
-      <b>Zoom Level:</b> 8
-    </div>
-  </div> <div id="inset-source">
-    <div class="inset-title">Data Source</div>
-    <div class="inset-line"></div>
-    <div class="inset-text small">
-      DEM: Badan Informasi Geospasial (BIG)<br>
-      POI: OpenStreetMap / Geofabrik<br>
-      Road & Coastline: Geofabrik + BIG
-    </div>
+   
+  <div class="inset-title">Mandalika Study Area</div>
+
+  <div class="inset-line"></div>
+
+  <div class="inset-text">
+    <b>Dominant Class:</b> Suitable Area
   </div>
-</div> <div id="northarrow"></div>
+
+  <div class="inset-line"></div>
+
+  <div class="inset-text">
+    <b>Interpretation:</b><br>
+    The area is predominantly classified as <i>“Suitable”</i> due to a combination of gentle slope conditions, 
+    good accessibility through existing road networks, and proximity to key tourism points of interest (POIs). 
+    These factors collectively indicate a high potential for sustainable tourism development within the Mandalika region.
+  </div>
+
+  <div class="inset-line"></div>
+
+  <div class="inset-text small">
+    <b>Center:</b> -8.65, 116.33<br>
+    <b>Zoom Level:</b> 8
+  </div>
+    <div id="inset-source">
+  <div class="inset-title">Data Source</div>
+
+  <div class="inset-line"></div>
+
+  <div class="inset-text small">
+    DEM: Badan Informasi Geospasial (BIG)<br>
+    POI: OpenStreetMap / Geofabrik<br>
+    Road & Coastline: Geofabrik + BIG
+  </div>
+</div>
+
+</div> <!-- ini nutup inset-info -->
+</div> <!-- ini nutup inset-map -->
+
+  <!-- NAV -->
+  <div id="northarrow"></div>
   <div id="navigation"></div>
 
   <div id="branding-text">@Geoariyadi Spatial System</div>
@@ -498,76 +541,63 @@ app.init(container);       // initialize viewer
 app.loadSceneFile("./data/index/scene.js", function (scene) {
   app.start();
 
-  // INSET MAP - PRO VERSION
-  setTimeout(function () {
+// INSET MAP - PRO VERSION
+setTimeout(function () {
 
-    if (typeof L === "undefined") return;
+  if (typeof L === "undefined") return;
 
-    var inset = L.map('inset-map-inner', {
-      zoomControl: false,
-      attributionControl: false, // Matikan agar tidak memenuhi layar HP
-      preferCanvas: true
-    });
+  var inset = L.map('inset-map-inner', {
+    zoomControl: false,
+    attributionControl: true
+  });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19
-    }).addTo(inset);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(inset);
 
-    // Tentukan koordinat tengah Mandalika (sesuaikan jika meleset sedikit)
-    var centerMandalika = [-8.89, 116.29];
-    
-    // Set tampilan awal
-    inset.setView(centerMandalika, 10);
+  var mandalikaBounds = [
+    [-8.95, 116.05],
+    [-8.55, 116.45]
+  ];
 
-    // Tambahkan kotak area (Bounds)
-    var mandalikaBounds = [
-      [-8.95, 116.05],
-      [-8.55, 116.45]
-    ];
+  L.rectangle(mandalikaBounds, {
+    color: "#FFD700",
+    weight: 2,
+    fillOpacity: 0.08
+  }).addTo(inset);
 
-    L.rectangle(mandalikaBounds, {
-      color: "#FFD700",
-      weight: 2,
-      fillOpacity: 0.1
-    }).addTo(inset);
+  inset.fitBounds(mandalikaBounds, {
+    padding: [40, 40]
+  });
 
-    // Kunci interaksi agar stabil di HP
-    inset.dragging.disable();
-    inset.scrollWheelZoom.disable();
+  var center = inset.getCenter();
 
-    // --- FIX UTAMA AGAR TIDAK BLANK DI HP ---
-    // Tunggu sebentar setelah CSS terpasang, lalu paksa render ulang
-    setTimeout(function () {
-      inset.invalidateSize(true);
-      inset.fitBounds(mandalikaBounds); // Memastikan area masuk dalam kotak kecil di HP
-    }, 500);
+  L.circleMarker(center, {
+    radius: 5,
+    color: "#FFD700",
+    fillColor: "#FFD700",
+    fillOpacity: 1
+  }).addTo(inset);
+
+  inset.dragging.disable();
+  inset.scrollWheelZoom.disable();
+  inset.doubleClickZoom.disable();
+  inset.boxZoom.disable();
+  inset.keyboard.disable();
+
+}, 300);
 
 }, function (scene) {
   // all associated files loaded
 });
-// --- REVISI FIX INTERAKSI HP ---
-var insetEl = document.getElementById('inset-map');
-var legendEl = document.getElementById('legend-box');
-
-if (insetEl) {
-  insetEl.addEventListener('click', function(e) {
-    e.stopPropagation();
+// --- TEMPEL DI SINI (POINT NO 2) ---
+document.getElementById('inset-map').addEventListener('click', function() {
     if (window.innerWidth <= 820) {
-      this.classList.toggle('expanded');
-      // Set opacity manual untuk memastikan visualnya jelas saat diklik
-      this.style.opacity = (this.classList.contains('expanded')) ? '1' : '0.4';
+        this.classList.toggle('expanded');
     }
-  });
-}
-
-if (legendEl) {
-  legendEl.addEventListener('click', function(e) {
-    if (window.innerWidth <= 820) {
-      // Legenda meredup agar tidak menghalangi peta utama
-      this.style.opacity = (this.style.opacity === '0.3') ? '1' : '0.3';
-    }
-  });
-}
+});
 </script>
 </body>
 </html>
