@@ -292,93 +292,78 @@
   pointer-events: none;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
 }
-/* ===== MULAI TAMBAHAN SCRIPT UNTUK RESPONSIVE (HP/TABLET) ===== */
+/* ===== REVISI RESPONSIVE ===== */
 @media screen and (max-width: 820px) {
-  /* 1. Menyesuaikan Judul dan Deskripsi agar tidak menabrak inset map */
+  /* 1. Sembunyikan Arah Utara dan Scale Bar di HP */
+  .map-widgets {
+    display: none !important;
+  }
+
+  /* 2. Sesuaikan Judul agar lebih ringkas */
   #map-title-box {
     top: 10px;
     left: 10px;
-    max-width: 55%; 
+    max-width: 50%; 
   }
   #map-title {
-    font-size: 14px;
-    margin-bottom: 8px;
+    font-size: 12px !important;
+    line-height: 1.2;
   }
   #map-desc-box {
-    font-size: 9px;
-    padding: 8px;
-    line-height: 1.4;
+    display: none; /* Sembunyikan deskripsi di HP agar bersih */
   }
-  
-  /* 2. Menyesuaikan Widget (Arah Utara & Skala) */
-  .map-widgets {
-    margin-top: 15px;
-  }
-  .north-arrow-wrap {
-    width: 40px;
-    height: 40px;
-  }
-  .north-arrow-wrap svg {
-    transform: scale(0.7);
-  }
-  .scale-bar-wrap {
-    padding: 6px 10px;
-  }
-  .scale-ruler {
-    width: 70px;
-  }
-  
-  /* 3. Menyesuaikan Legenda di sudut kiri bawah */
-  #legend-box {
-    bottom: 15px;
-    left: 10px;
-    max-width: 140px;
-  }
-  #legend-title {
-    font-size: 11px;
-    margin-bottom: 6px;
-  }
-  .legend-item {
-    font-size: 8px;
-    margin-bottom: 6px;
-  }
-  .legend-color {
-    width: 10px;
-    height: 10px;
-  }
-  #legend-content {
-    padding: 8px;
-  }
-  
-  /* 4. Menyesuaikan Inset Map (Peta Kecil di Kanan) */
+
+  /* 3. Inset Map: Klik untuk Detail */
   #inset-map {
     top: 10px;
     right: 10px;
-    width: 130px; 
-    min-height: auto; /* Sangat penting: membatalkan tinggi 550px di layar HP */
+    width: 120px; 
+    min-height: auto !important;
+    cursor: pointer; /* Memberi indikasi bisa diklik */
+    transition: width 0.3s ease;
   }
+
+  /* Saat Inset Map diklik (class 'expanded' aktif), lebarnya membesar */
+  #inset-map.expanded {
+    width: 220px;
+  }
+
   #inset-map-inner {
-    height: 90px;
+    height: 80px;
   }
+
+  /* Sembunyikan detail info secara default di HP */
   #inset-info, #inset-source {
-    padding: 6px;
-    gap: 4px;
+    display: none; 
+    padding: 8px;
   }
+
+  /* Tampilkan detail hanya ketika class 'expanded' ada */
+  #inset-map.expanded #inset-info, 
+  #inset-map.expanded #inset-source {
+    display: flex;
+  }
+
   .inset-title {
     font-size: 9px;
   }
-  .inset-text {
-    font-size: 8px;
-    line-height: 1.2;
-  }
-  .inset-text.small {
+
+  /* Tambahkan teks petunjuk kecil */
+  #inset-map::after {
+    content: "Tap for info";
+    display: block;
+    text-align: center;
     font-size: 7px;
-  }
-  .inset-line {
-    margin: 4px 0;
+    color: #FFD700;
+    padding: 2px;
+    background: rgba(0,0,0,0.5);
   }
   
-  /* 5. Menyesuaikan Watermark */
+  /* Hilangkan teks petunjuk jika sudah dibuka */
+  #inset-map.expanded::after {
+    display: none;
+  }
+
   #branding-text {
     bottom: 5px;
     right: 10px;
@@ -545,6 +530,10 @@ Q3D.Config.localMode = true;
 var container = document.getElementById("view"),
     app = Q3D.application,
     gui = Q3D.gui;
+    // Tambahkan ini agar di HP tidak lag/berat
+if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+    app.setPixelRatio(1); 
+}
 
 app.init(container);       // initialize viewer
 
@@ -602,6 +591,12 @@ setTimeout(function () {
 
 }, function (scene) {
   // all associated files loaded
+});
+// --- TEMPEL DI SINI (POINT NO 2) ---
+document.getElementById('inset-map').addEventListener('click', function() {
+    if (window.innerWidth <= 820) {
+        this.classList.toggle('expanded');
+    }
 });
 </script>
 </body>
