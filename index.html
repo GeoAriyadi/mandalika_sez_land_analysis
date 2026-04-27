@@ -23,14 +23,7 @@
   z-index: 9999;
   animation: fadeIn 1.2s ease;
 }
-.map-widgets {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  animation: fadeIn 1.3s ease;
-}
+
 
 .north-arrow-wrap {
   width: 62px;
@@ -186,8 +179,8 @@
   top: 24px;
   right: 24px;
   width: 240px;
-  height: auto;   /* Ubah dari 320px ke auto */
-  min-height: 550px; /* Tambahkan min-height agar proporsional */
+  max-height: 80vh;
+  transition: all 0.25s ease; 
   border-radius: 12px;
   overflow: hidden;
 
@@ -227,7 +220,7 @@
 #inset-info {
   position: relative;
   flex: 1;
-  overflow: visible;
+  overflow-y: auto;
   padding: 10px 12px;
 
   color: white;
@@ -292,54 +285,62 @@
   pointer-events: none;
   text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
 }
+#navigation {
+  position: absolute !important;
+  bottom: 10px !important;
+  right: 10px !important;
+  z-index: 9999 !important;
+  transform: scale(0.7);
+}
 /* ===== REVISI RESPONSIVE ===== */
 @media screen and (max-width: 820px) {
-  /* 1. Sembunyikan Arah Utara dan Scale Bar di HP */
+
+  /* 1. Hide widget */
   .map-widgets {
     display: none !important;
   }
 
-  /* 2. Sesuaikan Judul agar lebih ringkas */
+  /* 2. Title lebih compact */
   #map-title-box {
-    top: 10px;
-    left: 10px;
-    max-width: 50%; 
+    top: 6px;
+    left: 6px;
+    max-width: 55%;
   }
+
   #map-title {
     font-size: 12px !important;
-    line-height: 1.2;
+    line-height: 1.3;
   }
+
   #map-desc-box {
-    display: none; /* Sembunyikan deskripsi di HP agar bersih */
+    display: none;
   }
 
-  /* 3. Inset Map: Klik untuk Detail */
-  #inset-map {
-    top: 10px;
-    right: 10px;
-    width: 120px; 
-    min-height: auto !important;
-    cursor: pointer; /* Memberi indikasi bisa diklik */
-    transition: width 0.3s ease;
-  }
+#inset-map {
+  top: 6px;
+  right: 6px;
+  width: 130px;
+  max-height: 160px;
+  overflow: hidden;
+}
 
-  /* Saat Inset Map diklik (class 'expanded' aktif), lebarnya membesar */
-  #inset-map.expanded {
-    width: 220px;
-  }
+#inset-map-inner {
+  height: 90px;
+}
 
-  #inset-map-inner {
-    height: 80px;
-  }
+#inset-map.expanded {
+  width: 85vw;
+  max-height: 70vh;
+}
 
-  /* Sembunyikan detail info secara default di HP */
-  #inset-info, #inset-source {
-    display: none; 
-    padding: 8px;
-  }
+  
+#inset-info, #inset-source {
+  display: none;
+  padding: 6px 8px;
+  overflow: hidden;
+}
 
-  /* Tampilkan detail hanya ketika class 'expanded' ada */
-  #inset-map.expanded #inset-info, 
+  #inset-map.expanded #inset-info,
   #inset-map.expanded #inset-source {
     display: flex;
   }
@@ -348,26 +349,65 @@
     font-size: 9px;
   }
 
-  /* Tambahkan teks petunjuk kecil */
+  .inset-text {
+    font-size: 9px;
+  }
+
+  .inset-text.small {
+    font-size: 8px;
+  }
+
+  /* 5. Hint */
   #inset-map::after {
-    content: "Tap for info";
+    content: "Tap";
     display: block;
     text-align: center;
-    font-size: 7px;
+    font-size: 6px;
     color: #FFD700;
     padding: 2px;
     background: rgba(0,0,0,0.5);
   }
-  
-  /* Hilangkan teks petunjuk jika sudah dibuka */
+
   #inset-map.expanded::after {
     display: none;
   }
 
-  #branding-text {
-    bottom: 5px;
-    right: 10px;
+  /* 6. Legend lebih kecil & rapi */
+  #legend-box {
+    max-width: 120px !important;
+    bottom: 6px;
+    left: 6px;
+    max-height: 120px;   
+    overflow-y: auto;   
+  }
+
+  #legend-title {
+    font-size: 10px;
+  }
+
+  .legend-item {
     font-size: 7px;
+  }
+
+  .legend-color {
+    width: 7px;
+    height: 7px;
+  }
+
+  /* 7. Branding */
+  #branding-text {
+    bottom: 4px;
+    right: 8px;
+    font-size: 6px;
+  }
+
+  /* 8. Navigation (biar ga nutup inset) */
+  #navigation {
+    position: absolute !important;
+    z-index: 10001 !important;
+    transform: scale(0.5);
+    bottom: 2px !important;
+    right: 2px !important;
   }
 }
 /* ===== SELESAI TAMBAHAN SCRIPT RESPONSIVE ===== */
@@ -541,63 +581,74 @@ app.init(container);       // initialize viewer
 app.loadSceneFile("./data/index/scene.js", function (scene) {
   app.start();
 
-// INSET MAP - PRO VERSION
-setTimeout(function () {
+  // INSET MAP - PRO VERSION
+  setTimeout(function () {
 
-  if (typeof L === "undefined") return;
+    if (typeof L === "undefined") return;
 
-  var inset = L.map('inset-map-inner', {
-    zoomControl: false,
-    attributionControl: true
-  });
+    var inset = L.map('inset-map-inner', {
+      zoomControl: false,
+      attributionControl: true,
+      preferCanvas: true
+    });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }).addTo(inset);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(inset);
 
-  var mandalikaBounds = [
-    [-8.95, 116.05],
-    [-8.55, 116.45]
-  ];
+    var mandalikaBounds = [
+      [-8.95, 116.05],
+      [-8.55, 116.45]
+    ];
 
-  L.rectangle(mandalikaBounds, {
-    color: "#FFD700",
-    weight: 2,
-    fillOpacity: 0.08
-  }).addTo(inset);
+    L.rectangle(mandalikaBounds, {
+      color: "#FFD700",
+      weight: 2,
+      fillOpacity: 0.08
+    }).addTo(inset);
 
-  inset.fitBounds(mandalikaBounds, {
-    padding: [40, 40]
-  });
+    inset.fitBounds(mandalikaBounds, {
+      padding: [40, 40]
+    });
 
-  var center = inset.getCenter();
+    var center = inset.getCenter();
 
-  L.circleMarker(center, {
-    radius: 5,
-    color: "#FFD700",
-    fillColor: "#FFD700",
-    fillOpacity: 1
-  }).addTo(inset);
+    L.circleMarker(center, {
+      radius: 5,
+      color: "#FFD700",
+      fillColor: "#FFD700",
+      fillOpacity: 1
+    }).addTo(inset);
 
-  inset.dragging.disable();
-  inset.scrollWheelZoom.disable();
-  inset.doubleClickZoom.disable();
-  inset.boxZoom.disable();
-  inset.keyboard.disable();
+    inset.dragging.disable();
+    inset.scrollWheelZoom.disable();
+    inset.doubleClickZoom.disable();
+    inset.boxZoom.disable();
+    inset.keyboard.disable();
 
-}, 300);
+    // FIX render di HP
+    setTimeout(function () {
+      inset.invalidateSize();
+    }, 200);
+
+  }, 300);
 
 }, function (scene) {
   // all associated files loaded
 });
-// --- TEMPEL DI SINI (POINT NO 2) ---
-document.getElementById('inset-map').addEventListener('click', function() {
+// --- REVISI FIX INSET HP ---
+var insetEl = document.getElementById('inset-map');
+
+if (insetEl) {
+  insetEl.addEventListener('click', function(e) {
+    e.stopPropagation();
     if (window.innerWidth <= 820) {
-        this.classList.toggle('expanded');
+      this.classList.toggle('expanded');
     }
-});
+  });
+}
 </script>
 </body>
 </html>
